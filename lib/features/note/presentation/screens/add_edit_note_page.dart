@@ -20,6 +20,7 @@ class _AddNoteScreenState extends State<AddEditNotePage> {
         title: "Add New Note",
         firstIcon: (Icons.arrow_back),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
