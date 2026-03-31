@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class WriteBoxDiary extends StatelessWidget {
-  const WriteBoxDiary({super.key});
+  final String title;
+  final String content;
+  const WriteBoxDiary({super.key, required this.title, required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class WriteBoxDiary extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -21,22 +23,19 @@ class WriteBoxDiary extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
+        children: [
           Text(
-            'Today was a great day!',
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               height: 1.3,
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Text(
-            'I completed all my day tasks and had a productive meeting '
-            'with the team. In the evening, I went to the gym and felt '
-            'great afterwards. Losing great guilwards\n\n'
-            'Second to tomorrow!',
-            style: TextStyle(fontSize: 16, height: 1.45, color: Colors.black87),
+            content,
+            style: const TextStyle(fontSize: 16, height: 1.45, color: Colors.black87),
           ),
         ],
       ),

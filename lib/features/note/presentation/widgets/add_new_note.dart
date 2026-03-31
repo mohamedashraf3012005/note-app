@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:task2/features/note/presentation/screens/add_edit_note_page.dart';
-import 'package:task2/features/note/presentation/screens/folder_detail_page.dart';
 
 class AddNewNote extends StatelessWidget {
   const AddNewNote({super.key, required this.title, required this.subtitle});
@@ -16,7 +15,7 @@ class AddNewNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -32,7 +31,7 @@ class AddNewNote extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.18),
+                    color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(
@@ -72,7 +71,7 @@ class AddNewNote extends StatelessWidget {
           ),
 
           Divider(
-            color: Colors.white.withOpacity(0.25),
+            color: Colors.white.withValues(alpha: 0.25),
             height: 1,
             thickness: 1,
             indent: 20,

@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CreateNewButton extends StatelessWidget {
-  String title;
-  IconData? firstIcon;
-  CreateNewButton({super.key, required this.title, this.firstIcon});
+  final String title;
+  final IconData? firstIcon;
+  final VoidCallback? onPressed;
+  const CreateNewButton({
+    super.key,
+    required this.title,
+    this.firstIcon,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +19,7 @@ class CreateNewButton extends StatelessWidget {
       height: 75,
       minWidth: double.infinity,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      onPressed: () {},
+      onPressed: onPressed,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [

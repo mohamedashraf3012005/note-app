@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:task2/features/note/presentation/screens/add_edit_note_page.dart';
-import 'package:task2/features/note/presentation/screens/diary_page.dart';
-import 'package:task2/features/note/presentation/screens/folder_detail_page.dart';
-import 'package:task2/features/note/presentation/screens/my_folders_page.dart';
+import 'package:task2/features/note/data/datasources/note_remote_data_source.dart';
+import 'package:task2/features/note/data/repositories/note_repository_impl.dart';
+import 'package:task2/features/note/presentation/cubit/note_cubit.dart';
 import 'package:task2/features/on_boarding/presentation/screens/onboarding_screen.dart';
-import 'package:task2/features/auth/sign_in/presentation/screens/login_screen.dart';
-import 'package:task2/features/auth/sign_up/presentation/screens/signup_screen.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:task2/features/note/presentation/screens/my_folders_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,9 +24,24 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => NoteCubit(
+            repository: NoteRepositoryImpl(
+              remoteDataSource: NoteRemoteDataSourceImpl(
+                client: Supabase.instance.client,
+              ),
+            ),
+          )..getNotes(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Supabase.instance.client.auth.currentSession == null
+            ? const OnboardingScreen()
+            : const MyFoldersPage(),
+      ),
     );
   }
 }

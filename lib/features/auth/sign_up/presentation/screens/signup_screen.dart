@@ -7,6 +7,7 @@ import 'package:task2/features/on_boarding/presentation/widgets/text_input.dart'
 import 'package:task2/features/auth/sign_in/presentation/screens/login_screen.dart';
 import 'package:task2/features/auth/sign_up/presentation/cubit/signup_cubit.dart';
 import 'package:task2/features/auth/sign_up/presentation/cubit/signup_state.dart';
+import 'package:task2/features/note/presentation/screens/my_folders_page.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -42,9 +43,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 duration: Duration(seconds: 4),
               ),
             );
-            Navigator.push(
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              MaterialPageRoute(builder: (context) => const MyFoldersPage()),
+              (route) => false,
             );
             // ......
           } else if (state is SignupError) {

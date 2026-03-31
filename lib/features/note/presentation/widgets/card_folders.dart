@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:task2/features/note/presentation/screens/folder_detail_page.dart';
 
 class CardFolders extends StatelessWidget {
-  String title;
-  String notesCount;
-  Color color;
-  CardFolders({
+  final String title;
+  final String notesCount;
+  final Color color;
+
+  const CardFolders({
     super.key,
     required this.title,
     required this.notesCount,
@@ -18,7 +19,9 @@ class CardFolders extends StatelessWidget {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const FolderDetailPage()),
+          MaterialPageRoute(
+            builder: (context) => FolderDetailPage(folderName: title),
+          ),
         );
       },
       child: Container(

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 class PhotoSection extends StatelessWidget {
-  String? imagePath;
-  PhotoSection({super.key, required this.imagePath});
+  final String? imagePath;
+  const PhotoSection({super.key, required this.imagePath});
 
   @override
   Widget build(BuildContext context) {

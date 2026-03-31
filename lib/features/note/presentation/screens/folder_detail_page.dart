@@ -1,78 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:task2/features/note/presentation/widgets/CardDiary.dart';
-import 'package:task2/features/note/presentation/widgets/AddNewNote.dart';
-import 'package:task2/features/note/presentation/widgets/CustomAppbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task2/features/note/presentation/cubit/note_cubit.dart';
+import 'package:task2/features/note/presentation/cubit/note_state.dart';
+import 'package:task2/features/note/presentation/widgets/card_diary.dart';
+import 'package:task2/features/note/presentation/widgets/add_new_note.dart';
+import 'package:task2/features/note/presentation/widgets/custom_appbar.dart';
 
 class FolderDetailPage extends StatelessWidget {
-  const FolderDetailPage({super.key});
+  final String folderName;
+  const FolderDetailPage({super.key, required this.folderName});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "Personal",
+        title: folderName,
         firstIcon: Icons.arrow_back,
         secondIcon: Icons.more_vert,
-        colorText: Color(0xff002D95),
+        colorText: const Color(0xff002D95),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-
-            AddNewNote(title: "Personal", subtitle: "12 Note"),
-
-            const SizedBox(height: 24),
-            const Text(
-              "Notes",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Expanded(
-              child: ListView(
-                physics: const BouncingScrollPhysics(),
+        child: BlocBuilder<NoteCubit, NoteState>(
+          builder: (context, state) {
+            if (state is NotesLoaded) {
+              final folderNotes = state.notes.where((n) => n.folder == folderName).toList();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  CardDiary(
-                    title: "My Diary",
-                    category: "Today was a Great day",
-                    color: const Color(0xff216AFD),
-                    date: "25/6",
+                  const SizedBox(height: 12),
+                  AddNewNote(title: folderName, subtitle: "${folderNotes.length} Notes"),
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Notes",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
-                  CardDiary(
-                    title: "Shopping List",
-                    category: "Milk, Eggs, Bread...",
-                    color: const Color(0xffFD534A),
-                    date: "25/6",
-                  ),
-                  CardDiary(
-                    title: "Travel Plan",
-                    category: "Visit Paris, Rome...",
-                    color: const Color(0xffF6A135),
-                    date: "24/6",
-                  ),
-                  CardDiary(
-                    title: "Birth Day Ideas",
-                    category: "Gift, Cake, Party...",
-                    color: const Color(0xffE9A03E),
-                    date: "20/8/2022",
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: folderNotes.isEmpty
+                        ? const Center(child: Text("No notes in this folder."))
+                        : ListView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            itemCount: folderNotes.length,
+                            itemBuilder: (context, index) {
+                              final note = folderNotes[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: CardDiary(
+                                  note: note,
+                                  color: const Color(0xff216AFD),
+                                ),
+                              );
+                            },
+                          ),
                   ),
                 ],
-              ),
-            ),
-          ],
+              );
+            }
+            return const Center(child: CircularProgressIndicator());
+          },
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: Color(0xff1660FB),
-        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: const Color(0xff1660FB),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

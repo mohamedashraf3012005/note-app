@@ -7,6 +7,7 @@ import 'package:task2/features/on_boarding/presentation/widgets/text_input.dart'
 import 'package:task2/features/auth/sign_in/presentation/cubit/login_cubit.dart';
 import 'package:task2/features/auth/sign_in/presentation/cubit/login_state.dart';
 import 'package:task2/features/auth/sign_up/presentation/screens/signup_screen.dart';
+import 'package:task2/features/note/presentation/screens/my_folders_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,7 +38,12 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(content: Text("Login successful!")));
-            // ....
+            
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const MyFoldersPage()),
+              (route) => false,
+            );
           } else if (state is LoginError) {
             ScaffoldMessenger.of(
               context,
@@ -107,9 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: isLoading
                           ? null
                           : () => cubit.login(
-                              email: emailController.text,
-                              password: passwordController.text,
-                            ),
+                                email: emailController.text,
+                                password: passwordController.text,
+                              ),
                     ),
                     const SizedBox(height: 24),
                     const Text(

@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:task2/features/note/presentation/widgets/CardDiary.dart';
-import 'package:task2/features/note/presentation/widgets/CardFolders.dart';
-import 'package:task2/features/note/presentation/widgets/CreateNewButton.dart';
-import 'package:task2/features/note/presentation/widgets/CustomAppbar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task2/features/note/presentation/cubit/note_cubit.dart';
+import 'package:task2/features/note/presentation/cubit/note_state.dart';
+import 'package:task2/features/note/presentation/screens/add_edit_note_page.dart';
+import 'package:task2/features/note/presentation/widgets/card_diary.dart';
+import 'package:task2/features/note/presentation/widgets/card_folders.dart';
+import 'package:task2/features/note/presentation/widgets/create_new_button.dart';
+import 'package:task2/features/note/presentation/widgets/custom_appbar.dart';
 
 class MyFoldersPage extends StatelessWidget {
   const MyFoldersPage({super.key});
@@ -36,83 +40,42 @@ class MyFoldersPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            CreateNewButton(title: 'Create New Folder', firstIcon: Icons.add),
+            CreateNewButton(
+              title: 'Create New Folder',
+              firstIcon: Icons.add,
+              onPressed: () {
+                _showAddFolderDialog(context);
+              },
+            ),
             const SizedBox(height: 24),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              controller: ScrollController(),
-              padding: const EdgeInsets.symmetric(horizontal: 2),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      CardFolders(
-                        title: 'Personal',
-                        notesCount: '12 notes',
-                        color: Color(0xFF0F5AFE),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Work',
-                        notesCount: '8 notes',
-                        color: Color(0xFF237A45),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Travel',
-                        notesCount: '5 notes',
-                        color: Color(0xFF4CAF50),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Education',
-                        notesCount: '3 notes',
-                        color: Color(0xFF9C27B0),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Health',
-                        notesCount: '7 notes',
-                        color: Color(0xFFFF9800),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    children: [
-                      CardFolders(
-                        title: 'Shopping',
-                        notesCount: '15 notes',
-                        color: Color(0xFF753AE0),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Ideas',
-                        notesCount: '6 notes',
-                        color: Color(0xFFFDA643),
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Projects',
-                        notesCount: '6 notes',
-                        color: Colors.indigo.shade100,
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Favorites',
-                        notesCount: '9 notes',
-                        color: Colors.pink.shade100,
-                      ),
-                      SizedBox(width: 16),
-                      CardFolders(
-                        title: 'Archive',
-                        notesCount: '1 note',
-                        color: Colors.grey.shade100,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            BlocBuilder<NoteCubit, NoteState>(
+              builder: (context, state) {
+                if (state is NotesLoaded) {
+                  return SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: state.folders.map((folder) {
+                        final notesCount = state.notes
+                            .where((n) => n.folder == folder.name)
+                            .length;
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: CardFolders(
+                            title: folder.name,
+                            notesCount: '$notesCount notes',
+                            color: Color(
+                              int.parse(
+                                folder.color.replaceFirst('#', '0xFF'),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  );
+                }
+                return const SizedBox(height: 110);
+              },
             ),
             SizedBox(height: 12),
             Row(
@@ -151,35 +114,76 @@ class MyFoldersPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 3),
-            CardDiary(
-              title: 'Shopping List',
-              category: 'Personal',
-              color: Colors.red,
-              date: 'Today',
+            BlocBuilder<NoteCubit, NoteState>(
+              builder: (context, state) {
+                if (state is NoteLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is NotesLoaded) {
+                  if (state.notes.isEmpty) {
+                    return const Center(child: Text("No notes yet. Create your first note!"));
+                  }
+                  return Column(
+                    children: state.notes.take(5).map((note) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: CardDiary(
+                          note: note,
+                          color: note.folder == 'Work' ? Colors.green : Colors.blue,
+                        ),
+                      );
+                    }).toList(),
+                  );
+                } else if (state is NoteError) {
+                  return Center(child: Text("Error: ${state.message}"));
+                }
+                return const SizedBox();
+              },
             ),
-            SizedBox(height: 3),
-            CardDiary(
-              title: 'Meeting Summary',
-              category: 'Work',
-              color: Colors.green,
-              date: 'Yesterday',
-            ),
-            SizedBox(height: 3),
-            CardDiary(
-              title: 'Lecture 5',
-              category: 'Study',
-              color: Color(0xff9839DC),
-              date: '2 days ago',
-            ),
-            SizedBox(height: 3),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        shape: CircleBorder(),
-        backgroundColor: Color(0xff2C6CFE),
-        onPressed: () {},
-        child: Icon(Icons.add, color: Colors.white),
+        shape: const CircleBorder(),
+        backgroundColor: const Color(0xff2C6CFE),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddEditNotePage()),
+          );
+        },
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+    );
+  }
+
+  void _showAddFolderDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("New Folder"),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: "Folder Name"),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.isNotEmpty) {
+                context.read<NoteCubit>().addFolder(
+                      controller.text,
+                      '#216AFD',
+                    );
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("Create"),
+          ),
+        ],
       ),
     );
   }

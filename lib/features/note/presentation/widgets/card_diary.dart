@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:task2/features/note/presentation/screens/diary_page.dart';
+import 'package:task2/features/note/data/models/note_model.dart';
 
 class CardDiary extends StatelessWidget {
-  String title;
-  String? category;
-  String date;
-  Color color;
-  CardDiary({
+  final NoteModel note;
+  final Color color;
+
+  const CardDiary({
     super.key,
-    required this.title,
-    this.category,
+    required this.note,
     required this.color,
-    required this.date,
   });
 
   @override
@@ -20,7 +18,7 @@ class CardDiary extends StatelessWidget {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const DiaryPage()),
+          MaterialPageRoute(builder: (context) => DiaryPage(note: note)),
         );
       },
       child: Card(
@@ -42,8 +40,8 @@ class CardDiary extends StatelessWidget {
             ],
           ),
           title: Text(
-            title,
-            style: TextStyle(
+            note.title,
+            style: const TextStyle(
               fontSize: 22,
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -53,17 +51,17 @@ class CardDiary extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                category!,
-                style: TextStyle(
+                note.folder,
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black,
                   fontWeight: FontWeight.w400,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Text(
-                date,
-                style: TextStyle(
+                "${note.createdAt.day}/${note.createdAt.month}/${note.createdAt.year}",
+                style: const TextStyle(
                   fontSize: 18,
                   color: Colors.black,
                   fontWeight: FontWeight.w400,
@@ -73,7 +71,7 @@ class CardDiary extends StatelessWidget {
           ),
           trailing: IconButton(
             onPressed: () {},
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
             color: Colors.black,
           ),
         ),

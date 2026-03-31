@@ -1,18 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:task2/features/note/presentation/widgets/CustomAppbar.dart';
-import 'package:task2/features/note/presentation/widgets/PhotoSection.dart';
-import 'package:task2/features/note/presentation/widgets/WriteBoxDiary.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:task2/features/note/data/models/note_model.dart';
+import 'package:task2/features/note/presentation/cubit/note_cubit.dart';
+import 'package:task2/features/note/presentation/screens/add_edit_note_page.dart';
+import 'package:task2/features/note/presentation/widgets/custom_appbar.dart';
+import 'package:task2/features/note/presentation/widgets/photo_section.dart';
+import 'package:task2/features/note/presentation/widgets/write_box_diary.dart';
 
 class DiaryPage extends StatelessWidget {
-  const DiaryPage({super.key});
+  final NoteModel note;
+  const DiaryPage({super.key, required this.note});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title: "My Diary",
-        firstIcon: (Icons.arrow_back),
-        secondIcon: (Icons.share),
+        title: note.folder,
+        firstIcon: Icons.arrow_back,
+        secondIcon: Icons.edit,
+        onSecondIconPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddEditNotePage(initialNote: note),
+            ),
+          );
+        },
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -20,23 +33,30 @@ class DiaryPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              children: const [
-                Icon(Icons.circle, color: Colors.blue, size: 12),
-                SizedBox(width: 8),
+              children: [
+                const Icon(Icons.circle, color: Colors.blue, size: 12),
+                const SizedBox(width: 8),
                 Text(
-                  'Today, August 25',
-                  style: TextStyle(
+                  '${note.createdAt.day}/${note.createdAt.month}/${note.createdAt.year}',
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
+                ),
+                const Spacer(),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  onPressed: () {
+                    _showDeleteConfirmDialog(context);
+                  },
                 ),
               ],
             ),
 
             const SizedBox(height: 16),
 
-            WriteBoxDiary(),
+            WriteBoxDiary(title: note.title, content: note.content),
 
             const SizedBox(height: 24),
 
@@ -46,7 +66,6 @@ class DiaryPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // photos section
             SizedBox(
               height: 100,
               child: ListView(
@@ -56,14 +75,13 @@ class DiaryPage extends StatelessWidget {
                   const SizedBox(width: 12),
                   PhotoSection(imagePath: "assets/images/2.jpg"),
                   const SizedBox(width: 12),
-                  buildAddPhotoButton(),
+                  _buildAddPhotoButton(),
                 ],
               ),
             ),
 
             const SizedBox(height: 32),
 
-            // Tags section
             const Text(
               'Tags',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -73,10 +91,8 @@ class DiaryPage extends StatelessWidget {
             Wrap(
               spacing: 12,
               runSpacing: 12,
-              children: const [
-                _TagChip(label: 'Personal', color: Colors.blue),
-                _TagChip(label: 'Daily', color: Colors.green),
-                _TagChip(label: 'Life', color: Colors.purple),
+              children: [
+                _TagChip(label: note.folder, color: Colors.blue),
               ],
             ),
 
@@ -84,26 +100,35 @@ class DiaryPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
 
-      // Bottom Navigation (mock)
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.star), label: ''),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag_rounded),
-            label: '',
+  void _showDeleteConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Delete Note"),
+        content: const Text("Are you sure you want to delete this note?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.folder), label: ''),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              context.read<NoteCubit>().deleteNote(note.id);
+              Navigator.pop(context); // close dialog
+              Navigator.pop(context); // go back to list
+            },
+            child: const Text("Delete", style: TextStyle(color: Colors.white)),
+          ),
         ],
       ),
     );
   }
 
-  Widget buildAddPhotoButton() {
+  Widget _buildAddPhotoButton() {
     return Container(
       width: 100,
       height: 100,
@@ -128,9 +153,9 @@ class _TagChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Text(
         label,
